@@ -1,10 +1,16 @@
 import { useEffect, useReducer } from "react";
 import Header from "./Header";
 import Main from "./Main";
+import Loader from "./Loader";
+import Error from "./Error";
+import StartScreen from "./StartScreen";
+import Question from "./Question";
+
 const initial_state = {
   questions: [],
   // 'loading' 'error' 'ready' 'active' 'finished'  
   status: "loading",
+  index:0
 };
 function reducer(state, action) {
   switch (action.type) {
@@ -21,11 +27,18 @@ function reducer(state, action) {
         ...state,
         status: "error"
       }
+      case "start":
+        return {
+          ...state,
+          status:"active"
+        }
   }
 
 }
 export default function App() {
-  const [state, dispatch] = useReducer(reducer, initial_state);
+  const [{ questions, status,index}, dispatch] = useReducer(reducer, initial_state);
+  
+  const numQuestions = questions.length;
 
   useEffect(function () {
     async function loadData() {
@@ -47,8 +60,10 @@ export default function App() {
     <div className="app">
       <Header />
       <Main className="main">
-        <p> 1/15</p>
-        <p>Question ?</p>
+        {status === 'loading' && <Loader />}
+        {status === 'error' && <Error />}
+        {status === 'ready' && <StartScreen numQuestions= {numQuestions} dispatch={dispatch}/>}
+        {status === 'active' && <Question question = {questions[index]}/>}
       </Main>
     </div>
   );
