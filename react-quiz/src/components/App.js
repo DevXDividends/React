@@ -16,6 +16,7 @@ const initial_state = {
   index: 0,
   answer: null,
   points: 0,
+  highscore: 0
 };
 function reducer(state, action) {
   switch (action.type) {
@@ -38,14 +39,14 @@ function reducer(state, action) {
         status: "active",
       };
     case "newAnswer":
-      const quesiton = state.questions.at(state.index);
+      const question = state.questions.at(state.index);
 
       return {
         ...state,
         answer: action.payload,
         points:
-          action.payload === quesiton.correctOption
-            ? state.points + quesiton.points
+          action.payload === question.correctOption
+            ? state.points + question.points
             : state.points,
       };
     case "nextQuestion":
@@ -58,11 +59,18 @@ function reducer(state, action) {
       return {
         ...state,
         status: "finished",
+        highscore: state.points > state.highscore ? state.points : state.highscore
       };
+    case "restart":
+      return {
+        ...initial_state,
+        questions: state.questions,
+        status: "ready"
+      }
   }
 }
 export default function App() {
-  const [{ questions, status, index, answer, points }, dispatch] = useReducer(
+  const [{ questions, status, index, answer, points, highscore }, dispatch] = useReducer(
     reducer,
     initial_state,
   );
@@ -119,7 +127,7 @@ export default function App() {
           </>
         )}
         {status === "finished" && (
-          <FinishScreen points={points} maxPossiblePoints={maxPossiblePoints} />
+          <FinishScreen points={points} maxPossiblePoints={maxPossiblePoints} highscore={highscore} dispatch={dispatch} />
         )}
       </Main>
     </div>
